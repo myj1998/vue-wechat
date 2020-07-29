@@ -12,9 +12,13 @@
 				<span class="custom-tree-node" slot-scope="{ node, data }">
 					<span>{{ node.label }}</span>
 					<span>
-						<el-button type="text" :disabled="node.level==1" icon="el-icon-edit" size="mini">
-							图标
-						</el-button>
+						<el-popover placement="left" width="100" font-size='20px' trigger="hover">
+							<i :class="`el-icon-${data.icon}`" style="font-size: 25px;"></i>
+							<el-button slot="reference" type="text" @click.stop='openIconModal(node,data)' :icon="`el-icon-${data.icon}`"
+							 :disabled="node.level==0" size="mini">
+								图标
+							</el-button>
+						</el-popover>
 						<el-button @click.stop="openEditModal(node,data)" type="text" icon="el-icon-edit" :disabled="node.level==1" size="mini">
 							编辑
 						</el-button>
@@ -29,6 +33,23 @@
 					</span>
 				</span>
 			</el-tree>
+
+			<!-- 图标弹窗 -->
+			<el-dialog title="修改图标" :visible.sync="editIconShow" width="79%">
+				<ul class="icon_box">
+					<div v-for="(item,index) in iconList" :class="{icon_active:item.checked}" @click.stop='iconActive(item,index)'>
+						<li :class="`el-icon-${item.name}`"></li>
+						<p v-text="item.name"></p>
+					</div>
+				</ul>
+				<el-pagination background layout="prev,pager, sizes, next" :page-size="10" @size-change="handleSizeChange" style="float: right;"
+				 :page-sizes="pageNum" :total='300' @current-change='currentchange '>
+				</el-pagination>
+				<div slot="footer" class="dialog-footer">
+					<el-button @click='cancel'>取 消</el-button>
+					<el-button type="primary" @click="handleIconEdit('editForm')">保 存</el-button>
+				</div>
+			</el-dialog>
 
 			<el-dialog title="编辑分类" :visible.sync="editModalShow">
 				<el-form :model="editForm">
@@ -90,10 +111,18 @@
 					path: '',
 					order: ''
 				},
+				iconEdit: {
+					id: '',
+					icon: '',
+					name: '',
+				},
+				pageNum: [10, 20, 30, 40, 50, 60, 70, 80, 90, 100],
+				iconList: [],
 				nodeData: {}, //节点数据
 				node: {}, //节点
 				insertModalShow: false,
 				editModalShow: false,
+				editIconShow: false,
 			};
 		},
 		methods: {
@@ -112,6 +141,64 @@
 					return resolve(data);
 				}
 			},
+			cancel() {
+				this.insertModalShow = false;
+				this.editModalShow = false;
+				this.editIconShow = false;
+				this.editForm = { name: '', pId: '', img: '' };
+				this.insertForm = { name: '', id: '', img: '' }
+			},
+			//打开图标编辑
+			currentchange(val) {
+				this.pageIndex = val;
+				this.iconPage();
+			},
+			//分页器
+			handleSizeChange(val) {
+				this.pageSize = val;
+				this.iconPage();
+			},
+			//打开icon模板
+			async openIconModal(node, data) {
+				this.nodeData = data;
+				this.editIconShow = true;
+				this.iconPage();
+				this.iconEdit.id = data.id;
+			},
+			//获取图标列表
+			async iconPage() {
+				let res = await Menu.iconList({ pageSize: this.pageSize, pageIndex: this.pageIndex })
+				this.total = res.total;
+				this.iconList = res.icons
+				this.iconList.forEach((item) => {
+					item.checked = false;
+				})
+			},
+			//图标点击激活
+			iconActive(choose, index) {
+				let that = this;
+				this.iconList.forEach((item, index) => {
+					if (choose == item) {
+						item.checked = true;
+						that.iconEdit.icon = item.id;
+						that.iconEdit.name = item.name;
+					} else {
+						item.checked = false;
+					}
+					this.$set(this.iconList, index, item)
+				})
+			},
+			//改变图标
+			async handleIconEdit() {
+				let { msg, status } = await Menu.editIcon({ ...this.iconEdit })
+				if (status && this.iconEdit) {
+					this.nodeData.icon = this.iconEdit.name;
+					let data = { icon_name: this.iconEdit.name, id: this.nodeData.id }
+					New.$emit('updata', data)
+				}
+				this.cancel();
+			},
+
 			// 编辑
 			openEditModal(node, data) {
 				this.editForm = { ...data };
@@ -192,5 +279,14 @@
 
 	.warn {
 		margin-bottom: 15px;
+	}
+
+	.icon_box {
+		box-sizing: border-box;
+	}
+
+	.icon_box {
+		display: flex;
+		justify-content: space-between;
 	}
 </style>

@@ -8,10 +8,16 @@ let remove = (data) => axios.delete('/api/menu', { params: data });
 let edit = (data) => axios.put('/api/menu', data);
 //添加
 let add = (data) => axios.post('/api/menu', data);
+//获取图标
+let iconList = (data) => axios.get('/api/admin/icon/list', { params: data });
+//编辑图标
+let editIcon = (data) => axios.put('/api/menu/icon', data);
 
 export default {
 	list,
 	remove,
 	edit,
-	add
+	add,
+	iconList,
+	editIcon
 }

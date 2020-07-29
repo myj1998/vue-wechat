@@ -12,9 +12,20 @@ let insert = (data) => axios.post('/api/role', data);
 //获取角色列表
 let list = (data) => axios.get('/api/role/list', { params: data });
 
+//获取右侧菜单
+let config = (id) => axios.get('/api/role/config', { params: id })
+
+//为角色添加菜单
+let menuAdd = (data) => axios.post('/api/role/menu', data)
+//为角色删除菜单
+let menuDel = (data) => axios.delete('/api/role/menu', { params: data })
+
 export default {
 	remove,
 	edit,
 	insert,
-	list
+	list,
+	config,
+	menuAdd,
+	menuDel
 }
