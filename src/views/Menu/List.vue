@@ -42,7 +42,7 @@
 						<p v-text="item.name"></p>
 					</div>
 				</ul>
-				<el-pagination background layout="prev,pager, sizes, next" :page-size="10" @size-change="handleSizeChange" style="float: right;"
+				<el-pagination background layout="prev,pager, sizes, next" :page-size="20" @size-change="handleSizeChange" style="float: right;"
 				 :page-sizes="pageNum" :total='300' @current-change='currentchange '>
 				</el-pagination>
 				<div slot="footer" class="dialog-footer">
@@ -116,7 +116,7 @@
 					icon: '',
 					name: '',
 				},
-				pageNum: [10, 20, 30, 40, 50, 60, 70, 80, 90, 100],
+				pageNum: [10, 20, 30, 40],
 				iconList: [],
 				nodeData: {}, //节点数据
 				node: {}, //节点
@@ -281,12 +281,24 @@
 		margin-bottom: 15px;
 	}
 
-	.icon_box {
-		box-sizing: border-box;
+	ul {
+		height: 400px;
 	}
 
-	.icon_box {
-		display: flex;
-		justify-content: space-between;
+	ul div {
+		height: 100px;
+		width: 100px;
+		float: left;
+		border: 1px solid #D9D9D9;
+		text-align: center;
+	}
+
+	ul div:hover {
+		background-color: #409EFF;
+	}
+
+	ul div li {
+		margin-top: 15px;
+
 	}
 </style>
